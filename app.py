@@ -294,7 +294,10 @@ CLASS_NAMES = metadata["class_names"]
 TARGET_COLUMN = metadata["target_column"]
 
 ORIGINAL_NUMBER_OF_INSTANCES = int(
-    metadata["original_number_of_instances"]
+    metadata.get(
+        "original_number_of_instances",
+        metadata["number_of_instances"]
+    )
 )
 
 NUMBER_OF_INSTANCES = int(
@@ -325,14 +328,26 @@ st.title(
     "🌱 UCI Dry Bean Classification - Five ML Models"
 )
 
-st.caption(
-    f"{ORIGINAL_NUMBER_OF_INSTANCES:,} original bean instances, "
-    f"{NUMBER_OF_INSTANCES:,} instances used after preprocessing, "
-    f"{NUMBER_OF_FEATURES} numerical features and "
-    f"{NUMBER_OF_CLASSES} bean varieties. "
-    "Weighted-average metrics are used for this "
-    "multi-class classification problem."
-)
+if ORIGINAL_NUMBER_OF_INSTANCES == NUMBER_OF_INSTANCES:
+
+    st.caption(
+        f"{NUMBER_OF_INSTANCES:,} bean instances, "
+        f"{NUMBER_OF_FEATURES} numerical features and "
+        f"{NUMBER_OF_CLASSES} bean varieties. "
+        "Weighted-average metrics are used for this "
+        "multi-class classification problem."
+    )
+
+else:
+
+    st.caption(
+        f"{ORIGINAL_NUMBER_OF_INSTANCES:,} original bean instances, "
+        f"{NUMBER_OF_INSTANCES:,} instances used after preprocessing, "
+        f"{NUMBER_OF_FEATURES} numerical features and "
+        f"{NUMBER_OF_CLASSES} bean varieties. "
+        "Weighted-average metrics are used for this "
+        "multi-class classification problem."
+    )
 
 
 # ============================================================
