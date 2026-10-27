@@ -72,9 +72,10 @@ if upload:
             variety_report = report.loc[metrics["class_labels"]]
             st.dataframe(style_report_table(variety_report, "Bean Variety"), use_container_width=True, height=330)
 
-            st.markdown("#### 2. Overall Accuracy")
-            accuracy_column, support_column = st.columns(2)
+            st.markdown("#### 2. Overall Accuracy and MCC")
+            accuracy_column, mcc_column, support_column = st.columns(3)
             accuracy_column.metric("Accuracy", f"{accuracy_value:.4f}")
+            mcc_column.metric("Matthews Correlation Coefficient (MCC)", f"{live['MCC']:.4f}")
             support_column.metric("Test Records (Support)", f"{len(frame):,}")
 
             st.markdown("#### 3. Average Performance Scores")
