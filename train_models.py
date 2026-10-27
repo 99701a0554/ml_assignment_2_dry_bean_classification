@@ -163,6 +163,8 @@ print(f"Dataset found: {SOURCE_FILE}")
 print("\nLoading dataset...")
 
 df = pd.read_excel(SOURCE_FILE)
+ORIGINAL_NUMBER_OF_INSTANCES = len(df)
+PROCESSED_NUMBER_OF_INSTANCES = len(df)
 
 # Remove accidental spaces from column names
 df.columns = df.columns.str.strip()
@@ -460,13 +462,24 @@ metadata = {
     "feature_names": FEATURE_NAMES,
     "class_names": CLASS_NAMES,
 
-    "number_of_instances": int(len(df)),
-    "number_of_features": int(len(FEATURE_NAMES)),
-    "number_of_classes": int(len(CLASS_NAMES)),
+    "original_number_of_instances": int(
+        ORIGINAL_NUMBER_OF_INSTANCES
+    ),
+
+    "number_of_instances": int(
+        PROCESSED_NUMBER_OF_INSTANCES
+    ),
+
+    "number_of_features": int(
+        len(FEATURE_NAMES)
+    ),
+
+    "number_of_classes": int(
+        len(CLASS_NAMES)
+    ),
 
     "model_files": model_file_names
 }
-
 
 with open(
     METADATA_FILE,

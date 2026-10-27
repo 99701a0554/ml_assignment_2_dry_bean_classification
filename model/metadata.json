@@ -27,7 +27,8 @@
         "SEKER",
         "SIRA"
     ],
-    "number_of_instances": 13543,
+    "original_number_of_instances": 13611,
+    "number_of_instances": 13611,
     "number_of_features": 16,
     "number_of_classes": 7,
     "model_files": {
