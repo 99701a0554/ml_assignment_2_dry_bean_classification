@@ -320,14 +320,17 @@ def get_metadata_int(key, default=None):
 # Dataset statistics
 # ------------------------------------------------------------
 
-NUMBER_OF_INSTANCES = get_metadata_int(
-    "number_of_instances",
-    get_metadata_int("original_number_of_instances")
+ORIGINAL_NUMBER_OF_INSTANCES = get_metadata_int(
+    "original_number_of_instances"
 )
 
-ORIGINAL_NUMBER_OF_INSTANCES = get_metadata_int(
-    "original_number_of_instances",
-    NUMBER_OF_INSTANCES
+DUPLICATE_RECORDS_DETECTED = get_metadata_int(
+    "duplicate_records_detected",
+    0
+)
+
+NUMBER_OF_INSTANCES = get_metadata_int(
+    "number_of_instances"
 )
 
 TRAINING_RECORDS = get_metadata_int(
@@ -347,7 +350,6 @@ NUMBER_OF_CLASSES = get_metadata_int(
     "number_of_classes",
     len(CLASS_NAMES)
 )
-
 
 # ============================================================
 # 9. APPLICATION TITLE
@@ -399,10 +401,124 @@ else:
         "multi-class classification problem."
     )
 # ============================================================
-# DATASET SPLIT SUMMARY
+# DATASET SUMMARY
 # ============================================================
 
-st.markdown("#### Dataset Split Summary")
+st.markdown("#### Dataset Summary")
+
+
+# ------------------------------------------------------------
+# Calculate training / testing percentages
+# ------------------------------------------------------------
+
+TRAIN_PERCENTAGE = None
+TEST_PERCENTAGE = None
+
+if (
+    NUMBER_OF_INSTANCES is not None
+    and NUMBER_OF_INSTANCES > 0
+):
+
+    if TRAINING_RECORDS is not None:
+
+        TRAIN_PERCENTAGE = (
+            TRAINING_RECORDS
+            / NUMBER_OF_INSTANCES
+            * 100
+        )
+
+    if TEST_RECORDS is not None:
+
+        TEST_PERCENTAGE = (
+            TEST_RECORDS
+            / NUMBER_OF_INSTANCES
+            * 100
+        )
+
+
+# ------------------------------------------------------------
+# Dataset Processing Summary
+# ------------------------------------------------------------
+
+st.markdown("##### Data Preparation")
+
+original_col, duplicate_col, ready_col = st.columns(3)
+
+
+original_col.metric(
+    "Original Records",
+    (
+        f"{ORIGINAL_NUMBER_OF_INSTANCES:,}"
+        if ORIGINAL_NUMBER_OF_INSTANCES is not None
+        else "N/A"
+    )
+)
+
+
+duplicate_col.metric(
+    "Duplicate Records Removed",
+    (
+        f"{DUPLICATE_RECORDS_DETECTED:,}"
+        if DUPLICATE_RECORDS_DETECTED is not None
+        else "N/A"
+    )
+)
+
+
+ready_col.metric(
+    "Model-ready Records",
+    (
+        f"{NUMBER_OF_INSTANCES:,}"
+        if NUMBER_OF_INSTANCES is not None
+        else "N/A"
+    )
+)
+
+
+# ------------------------------------------------------------
+# Train / Test Split
+# ------------------------------------------------------------
+
+st.markdown("##### Train / Test Split")
+
+training_col, testing_col = st.columns(2)
+
+
+training_col.metric(
+    "Training Records",
+    (
+        f"{TRAINING_RECORDS:,}"
+        if TRAINING_RECORDS is not None
+        else "N/A"
+    ),
+    (
+        f"{TRAIN_PERCENTAGE:.1f}% of model-ready data"
+        if TRAIN_PERCENTAGE is not None
+        else None
+    ),
+    delta_color="off"
+)
+
+
+testing_col.metric(
+    "Test Records",
+    (
+        f"{TEST_RECORDS:,}"
+        if TEST_RECORDS is not None
+        else "N/A"
+    ),
+    (
+        f"{TEST_PERCENTAGE:.1f}% of model-ready data"
+        if TEST_PERCENTAGE is not None
+        else None
+    ),
+    delta_color="off"
+)
+
+
+# ------------------------------------------------------------
+# Integrity checks
+# ------------------------------------------------------------
 
 if (
     NUMBER_OF_INSTANCES is not None
@@ -410,38 +526,15 @@ if (
     and TEST_RECORDS is not None
 ):
 
-    TRAIN_PERCENTAGE = (
-        TRAINING_RECORDS
-        / NUMBER_OF_INSTANCES
-        * 100
-    )
+    if (
+        TRAINING_RECORDS + TEST_RECORDS
+        != NUMBER_OF_INSTANCES
+    ):
 
-    TEST_PERCENTAGE = (
-        TEST_RECORDS
-        / NUMBER_OF_INSTANCES
-        * 100
-    )
-
-    total_col, train_col, test_col = st.columns(3)
-
-    total_col.metric(
-        "Model-ready Records",
-        f"{NUMBER_OF_INSTANCES:,}"
-    )
-
-    train_col.metric(
-        "Training Records",
-        f"{TRAINING_RECORDS:,}",
-        f"{TRAIN_PERCENTAGE:.1f}% of model-ready data",
-        delta_color="off"
-    )
-
-    test_col.metric(
-        "Test Records",
-        f"{TEST_RECORDS:,}",
-        f"{TEST_PERCENTAGE:.1f}% of model-ready data",
-        delta_color="off"
-    )
+        st.warning(
+            "Training + Test records do not equal "
+            "the model-ready dataset size."
+        )
 
 
     # --------------------------------------------------------
