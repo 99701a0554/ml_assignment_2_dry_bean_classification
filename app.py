@@ -42,19 +42,31 @@ if upload:
             live, pred = score(model, X, frame["Class"]); st.subheader("Uploaded test-data evaluation"); st.dataframe(pd.DataFrame([live]).style.format("{:.4f}"), use_container_width=True)
             cm = confusion_matrix(frame["Class"], pred, labels=metrics["class_labels"]); fig, ax = plt.subplots(figsize=(8, 6)); sns.heatmap(cm, annot=True, fmt="d", cmap="Blues", xticklabels=metrics["class_labels"], yticklabels=metrics["class_labels"], ax=ax); ax.set(xlabel="Predicted", ylabel="Actual", title=f"Confusion Matrix - {model_name}"); st.pyplot(fig)
             st.subheader("Classification Report")
-            report = pd.DataFrame(classification_report(frame["Class"], pred, output_dict=True, zero_division=0)).transpose()
+            report_data = classification_report(frame["Class"], pred, labels=metrics["class_labels"], output_dict=True, zero_division=0)
+            accuracy_value = report_data.pop("accuracy")
+            report = pd.DataFrame(report_data).transpose()
+            report.loc["accuracy"] = {"precision": accuracy_value, "recall": accuracy_value, "f1-score": accuracy_value, "support": len(frame)}
+            report.loc["micro avg"] = {
+                "precision": precision_score(frame["Class"], pred, average="micro", zero_division=0),
+                "recall": recall_score(frame["Class"], pred, average="micro", zero_division=0),
+                "f1-score": f1_score(frame["Class"], pred, average="micro", zero_division=0),
+                "support": len(frame),
+            }
+            row_order = metrics["class_labels"] + ["accuracy", "micro avg", "macro avg", "weighted avg"]
+            report = report.loc[row_order]
             report.index.name = "Class / Average"
             report_style = (
                 report.style
                 .format({"precision": "{:.4f}", "recall": "{:.4f}", "f1-score": "{:.4f}", "support": "{:.0f}"})
                 .background_gradient(cmap="Blues", subset=["precision", "recall", "f1-score"], vmin=0.0, vmax=1.0)
+                .set_properties(subset=["support"], **{"background-color": "#DDEBF7", "color": "#0B3C5D", "font-weight": "bold"})
                 .set_table_styles([
                     {"selector": "th", "props": [("background-color", "#0B3C5D"), ("color", "white"), ("font-weight", "bold"), ("text-align", "center")]},
                     {"selector": "td", "props": [("text-align", "center"), ("border", "1px solid #D6E4F0")]},
                     {"selector": "tbody tr:nth-child(even)", "props": [("background-color", "#F4F9FD")]},
                 ])
             )
-            st.dataframe(report_style, use_container_width=True, height=360)
+            st.dataframe(report_style, use_container_width=True, height=560)
         else: frame["prediction"] = model.predict(X); st.info("No Class column was supplied, so predictions are displayed."); st.dataframe(frame[["prediction"]].head(20))
 else:
     st.info("Upload the included test_data.csv to calculate metrics, a confusion matrix, and a classification report.")
