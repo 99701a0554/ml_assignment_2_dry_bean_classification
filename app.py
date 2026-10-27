@@ -54,9 +54,10 @@ if upload:
             }
             row_order = metrics["class_labels"] + ["accuracy", "micro avg", "macro avg", "weighted avg"]
             report = report.loc[row_order]
-            report.index.name = "Class / Average"
-            report_style = (
-                report.style
+            def style_report_table(table, index_name):
+                table.index.name = index_name
+                return (
+                    table.style
                 .format({"precision": "{:.4f}", "recall": "{:.4f}", "f1-score": "{:.4f}", "support": "{:.0f}"})
                 .background_gradient(cmap="Blues", subset=["precision", "recall", "f1-score"], vmin=0.0, vmax=1.0)
                 .set_properties(subset=["support"], **{"background-color": "#DDEBF7", "color": "#0B3C5D", "font-weight": "bold"})
@@ -65,8 +66,20 @@ if upload:
                     {"selector": "td", "props": [("text-align", "center"), ("border", "1px solid #D6E4F0")]},
                     {"selector": "tbody tr:nth-child(even)", "props": [("background-color", "#F4F9FD")]},
                 ])
-            )
-            st.dataframe(report_style, use_container_width=True, height=560)
+                )
+
+            st.markdown("#### 1. Scores for the Seven Bean Varieties")
+            variety_report = report.loc[metrics["class_labels"]]
+            st.dataframe(style_report_table(variety_report, "Bean Variety"), use_container_width=True, height=330)
+
+            st.markdown("#### 2. Overall Accuracy")
+            accuracy_column, support_column = st.columns(2)
+            accuracy_column.metric("Accuracy", f"{accuracy_value:.4f}")
+            support_column.metric("Test Records (Support)", f"{len(frame):,}")
+
+            st.markdown("#### 3. Average Performance Scores")
+            average_report = report.loc[["micro avg", "macro avg", "weighted avg"]]
+            st.dataframe(style_report_table(average_report, "Average Type"), use_container_width=True, height=190)
         else: frame["prediction"] = model.predict(X); st.info("No Class column was supplied, so predictions are displayed."); st.dataframe(frame[["prediction"]].head(20))
 else:
     st.info("Upload the included test_data.csv to calculate metrics, a confusion matrix, and a classification report.")
