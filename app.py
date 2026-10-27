@@ -293,6 +293,11 @@ FEATURE_NAMES = metadata["feature_names"]
 CLASS_NAMES = metadata["class_names"]
 TARGET_COLUMN = metadata["target_column"]
 
+NUMBER_OF_INSTANCES = metadata.get(
+    "number_of_instances",
+    0,
+)
+
 NUMBER_OF_FEATURES = metadata.get(
     "number_of_features",
     len(FEATURE_NAMES),
@@ -304,6 +309,7 @@ NUMBER_OF_CLASSES = metadata.get(
 )
 
 
+
 # ============================================================
 # 9. APPLICATION TITLE
 # ============================================================
@@ -313,6 +319,7 @@ st.title(
 )
 
 st.caption(
+    f"{NUMBER_OF_INSTANCES:,} bean instances, "
     f"{NUMBER_OF_FEATURES} numerical features and "
     f"{NUMBER_OF_CLASSES} bean varieties. "
     "Weighted-average metrics are used for this "
