@@ -459,6 +459,7 @@ metadata = {
     "target_column": TARGET_COLUMN,
     "feature_names": FEATURE_NAMES,
     "class_names": CLASS_NAMES,
+    "number_of_instances": len(df),
     "number_of_features": len(FEATURE_NAMES),
     "number_of_classes": len(CLASS_NAMES),
     "model_files": model_file_names
