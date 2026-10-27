@@ -885,7 +885,7 @@ if upload is not None:
 
             column.metric(
                 metric,
-                f"{live_metrics.4f}",
+                f"{live_metrics[metric]:.4f}",
             )
 
 
