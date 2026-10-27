@@ -293,7 +293,7 @@ FEATURE_NAMES = metadata["feature_names"]
 CLASS_NAMES = metadata["class_names"]
 TARGET_COLUMN = metadata["target_column"]
 
-NUMBER_OF_INSTANCES = metadata["number_of_instances"]
+NUMBER_OF_INSTANCES = metadata.get("number_of_instances")
 
 NUMBER_OF_FEATURES = metadata.get(
     "number_of_features",
