@@ -59,7 +59,7 @@ DEFAULT_MODEL_FILES = {
 # 4. LOAD APPLICATION ASSETS
 # ============================================================
 
-@st.cache_resource
+#@st.cache_resource
 def load_assets():
 
     required_files = [
@@ -321,7 +321,8 @@ def get_metadata_int(key, default=None):
 # ------------------------------------------------------------
 
 NUMBER_OF_INSTANCES = get_metadata_int(
-    "number_of_instances"
+    "number_of_instances",
+    get_metadata_int("original_number_of_instances")
 )
 
 ORIGINAL_NUMBER_OF_INSTANCES = get_metadata_int(
@@ -360,13 +361,16 @@ if (
 ):
 
     st.caption(
-        f"{ORIGINAL_NUMBER_OF_INSTANCES:,} original bean instances, "
-        f"{NUMBER_OF_INSTANCES:,} instances used after preprocessing, "
-        f"{NUMBER_OF_FEATURES} numerical features and "
-        f"{NUMBER_OF_CLASSES} bean varieties. "
-        "Weighted-average metrics are used for this "
-        "multi-class classification problem."
+    (
+        f"{NUMBER_OF_INSTANCES:,} bean instances, "
+        if NUMBER_OF_INSTANCES is not None
+        else ""
     )
+    + f"{NUMBER_OF_FEATURES} numerical features and "
+    + f"{NUMBER_OF_CLASSES} bean varieties. "
+    + "Weighted-average metrics are used for this "
+    + "multi-class classification problem."
+)
 
 elif NUMBER_OF_INSTANCES is not None:
 
