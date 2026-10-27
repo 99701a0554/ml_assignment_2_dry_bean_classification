@@ -293,15 +293,29 @@ FEATURE_NAMES = metadata["feature_names"]
 CLASS_NAMES = metadata["class_names"]
 TARGET_COLUMN = metadata["target_column"]
 
-ORIGINAL_NUMBER_OF_INSTANCES = int(
-    metadata.get(
-        "original_number_of_instances",
-        metadata["number_of_instances"]
-    )
+# ------------------------------------------------------------
+# Dataset statistics
+# ------------------------------------------------------------
+
+number_of_instances_value = metadata.get(
+    "number_of_instances"
 )
 
-NUMBER_OF_INSTANCES = int(
-    metadata["number_of_instances"]
+original_instances_value = metadata.get(
+    "original_number_of_instances"
+)
+
+# Safely convert values to integers
+NUMBER_OF_INSTANCES = (
+    int(number_of_instances_value)
+    if number_of_instances_value is not None
+    else None
+)
+
+ORIGINAL_NUMBER_OF_INSTANCES = (
+    int(original_instances_value)
+    if original_instances_value is not None
+    else NUMBER_OF_INSTANCES
 )
 
 NUMBER_OF_FEATURES = int(
@@ -317,7 +331,6 @@ NUMBER_OF_CLASSES = int(
         len(CLASS_NAMES)
     )
 )
-
 
 
 # ============================================================
