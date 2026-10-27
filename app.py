@@ -293,43 +293,50 @@ FEATURE_NAMES = metadata["feature_names"]
 CLASS_NAMES = metadata["class_names"]
 TARGET_COLUMN = metadata["target_column"]
 
+
+# ------------------------------------------------------------
+# Safely read integer metadata values
+# ------------------------------------------------------------
+
+def get_metadata_int(key, default=None):
+    """
+    Safely retrieve an integer value from metadata.
+    Returns default when the key is missing, None,
+    empty, or cannot be converted to an integer.
+    """
+
+    value = metadata.get(key)
+
+    if value is None or value == "":
+        return default
+
+    try:
+        return int(value)
+    except (TypeError, ValueError):
+        return default
+
+
 # ------------------------------------------------------------
 # Dataset statistics
 # ------------------------------------------------------------
 
-number_of_instances_value = metadata.get(
+NUMBER_OF_INSTANCES = get_metadata_int(
     "number_of_instances"
 )
 
-original_instances_value = metadata.get(
-    "original_number_of_instances"
+ORIGINAL_NUMBER_OF_INSTANCES = get_metadata_int(
+    "original_number_of_instances",
+    NUMBER_OF_INSTANCES
 )
 
-# Safely convert values to integers
-NUMBER_OF_INSTANCES = (
-    int(number_of_instances_value)
-    if number_of_instances_value is not None
-    else None
+NUMBER_OF_FEATURES = get_metadata_int(
+    "number_of_features",
+    len(FEATURE_NAMES)
 )
 
-ORIGINAL_NUMBER_OF_INSTANCES = (
-    int(original_instances_value)
-    if original_instances_value is not None
-    else NUMBER_OF_INSTANCES
-)
-
-NUMBER_OF_FEATURES = int(
-    metadata.get(
-        "number_of_features",
-        len(FEATURE_NAMES)
-    )
-)
-
-NUMBER_OF_CLASSES = int(
-    metadata.get(
-        "number_of_classes",
-        len(CLASS_NAMES)
-    )
+NUMBER_OF_CLASSES = get_metadata_int(
+    "number_of_classes",
+    len(CLASS_NAMES)
 )
 
 
@@ -341,7 +348,27 @@ st.title(
     "🌱 UCI Dry Bean Classification - Five ML Models"
 )
 
-if ORIGINAL_NUMBER_OF_INSTANCES == NUMBER_OF_INSTANCES:
+
+# ------------------------------------------------------------
+# Dataset caption
+# ------------------------------------------------------------
+
+if (
+    NUMBER_OF_INSTANCES is not None
+    and ORIGINAL_NUMBER_OF_INSTANCES is not None
+    and ORIGINAL_NUMBER_OF_INSTANCES != NUMBER_OF_INSTANCES
+):
+
+    st.caption(
+        f"{ORIGINAL_NUMBER_OF_INSTANCES:,} original bean instances, "
+        f"{NUMBER_OF_INSTANCES:,} instances used after preprocessing, "
+        f"{NUMBER_OF_FEATURES} numerical features and "
+        f"{NUMBER_OF_CLASSES} bean varieties. "
+        "Weighted-average metrics are used for this "
+        "multi-class classification problem."
+    )
+
+elif NUMBER_OF_INSTANCES is not None:
 
     st.caption(
         f"{NUMBER_OF_INSTANCES:,} bean instances, "
@@ -354,8 +381,6 @@ if ORIGINAL_NUMBER_OF_INSTANCES == NUMBER_OF_INSTANCES:
 else:
 
     st.caption(
-        f"{ORIGINAL_NUMBER_OF_INSTANCES:,} original bean instances, "
-        f"{NUMBER_OF_INSTANCES:,} instances used after preprocessing, "
         f"{NUMBER_OF_FEATURES} numerical features and "
         f"{NUMBER_OF_CLASSES} bean varieties. "
         "Weighted-average metrics are used for this "
