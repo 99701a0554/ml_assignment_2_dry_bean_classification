@@ -1,0 +1,39 @@
+{
+    "target_column": "Class",
+    "feature_names": [
+        "Area",
+        "Perimeter",
+        "MajorAxisLength",
+        "MinorAxisLength",
+        "AspectRation",
+        "Eccentricity",
+        "ConvexArea",
+        "EquivDiameter",
+        "Extent",
+        "Solidity",
+        "roundness",
+        "Compactness",
+        "ShapeFactor1",
+        "ShapeFactor2",
+        "ShapeFactor3",
+        "ShapeFactor4"
+    ],
+    "class_names": [
+        "BARBUNYA",
+        "BOMBAY",
+        "CALI",
+        "DERMASON",
+        "HOROZ",
+        "SEKER",
+        "SIRA"
+    ],
+    "number_of_features": 16,
+    "number_of_classes": 7,
+    "model_files": {
+        "Logistic Regression": "logistic_regression.joblib",
+        "Decision Tree": "decision_tree.joblib",
+        "KNN": "knn.joblib",
+        "Naive Bayes": "naive_bayes.joblib",
+        "SVM": "svm.joblib"
+    }
+}
