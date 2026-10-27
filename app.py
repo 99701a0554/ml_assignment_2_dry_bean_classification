@@ -13,6 +13,12 @@ MODEL_FILES = {"Logistic Regression": "logistic_regression.joblib", "Decision Tr
 
 @st.cache_resource
 def load_assets():
+    # Streamlit Cloud starts from the GitHub repository. If model artifacts
+    # were not committed, build them once from the bundled UCI dataset.
+    if not (MODEL_DIR / "metrics.json").exists():
+        from train_models import main as train_models
+        with st.spinner("Preparing the trained models for first use..."):
+            train_models()
     metrics = json.loads((MODEL_DIR / "metrics.json").read_text())
     return metrics, {name: joblib.load(MODEL_DIR / file) for name, file in MODEL_FILES.items()}
 
