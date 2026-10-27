@@ -330,6 +330,14 @@ ORIGINAL_NUMBER_OF_INSTANCES = get_metadata_int(
     NUMBER_OF_INSTANCES
 )
 
+TRAINING_RECORDS = get_metadata_int(
+    "training_records"
+)
+
+TEST_RECORDS = get_metadata_int(
+    "test_records"
+)
+
 NUMBER_OF_FEATURES = get_metadata_int(
     "number_of_features",
     len(FEATURE_NAMES)
@@ -390,7 +398,72 @@ else:
         "Weighted-average metrics are used for this "
         "multi-class classification problem."
     )
+# ============================================================
+# DATASET SPLIT SUMMARY
+# ============================================================
 
+st.markdown("#### Dataset Split Summary")
+
+if (
+    NUMBER_OF_INSTANCES is not None
+    and TRAINING_RECORDS is not None
+    and TEST_RECORDS is not None
+):
+
+    TRAIN_PERCENTAGE = (
+        TRAINING_RECORDS
+        / NUMBER_OF_INSTANCES
+        * 100
+    )
+
+    TEST_PERCENTAGE = (
+        TEST_RECORDS
+        / NUMBER_OF_INSTANCES
+        * 100
+    )
+
+    total_col, train_col, test_col = st.columns(3)
+
+    total_col.metric(
+        "Model-ready Records",
+        f"{NUMBER_OF_INSTANCES:,}"
+    )
+
+    train_col.metric(
+        "Training Records",
+        f"{TRAINING_RECORDS:,}",
+        f"{TRAIN_PERCENTAGE:.1f}% of model-ready data",
+        delta_color="off"
+    )
+
+    test_col.metric(
+        "Test Records",
+        f"{TEST_RECORDS:,}",
+        f"{TEST_PERCENTAGE:.1f}% of model-ready data",
+        delta_color="off"
+    )
+
+
+    # --------------------------------------------------------
+    # Integrity validation
+    # --------------------------------------------------------
+
+    if (
+        TRAINING_RECORDS + TEST_RECORDS
+        != NUMBER_OF_INSTANCES
+    ):
+
+        st.warning(
+            "Training and test record counts do not match "
+            "the model-ready dataset size."
+        )
+
+else:
+
+    st.info(
+        "Training/test split information is not available "
+        "in metadata.json."
+    )
 
 # ============================================================
 # 10. DATASET INFORMATION

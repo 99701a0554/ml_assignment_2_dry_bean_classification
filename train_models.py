@@ -52,6 +52,7 @@ MODEL_DIR = ROOT / "model"
 
 SOURCE_FILE = DATA_DIR / "Dry_Bean_Dataset.xlsx"
 
+TRAIN_DATA_FILE = DATA_DIR / "training_data.csv"
 TEST_DATA_FILE = ROOT / "test_data.csv"
 METRICS_FILE = MODEL_DIR / "metrics.json"
 METADATA_FILE = MODEL_DIR / "metadata.json"
@@ -163,8 +164,11 @@ print(f"Dataset found: {SOURCE_FILE}")
 print("\nLoading dataset...")
 
 df = pd.read_excel(SOURCE_FILE)
+
+# Record count before any data cleaning
 ORIGINAL_NUMBER_OF_INSTANCES = len(df)
-PROCESSED_NUMBER_OF_INSTANCES = len(df)
+
+#PROCESSED_NUMBER_OF_INSTANCES = len(df)
 
 # Remove accidental spaces from column names
 df.columns = df.columns.str.strip()
@@ -209,6 +213,16 @@ if missing_values > 0:
     print("Removing rows containing missing values...")
     df = df.dropna().reset_index(drop=True)
 
+# Record count after data cleaning
+PROCESSED_NUMBER_OF_INSTANCES = len(df)
+
+print(
+    f"Original records: {ORIGINAL_NUMBER_OF_INSTANCES:,}"
+)
+
+print(
+    f"Processed records: {PROCESSED_NUMBER_OF_INSTANCES:,}"
+)
 
 # ============================================================
 # 7. SEPARATE FEATURES AND TARGET
@@ -267,9 +281,78 @@ X_train, X_test, y_train, y_test = train_test_split(
     stratify=y
 )
 
+# Actual train/test record counts
+TRAINING_RECORDS = len(X_train)
+TEST_RECORDS = len(X_test)
+
 print(f"Training samples: {len(X_train)}")
 print(f"Testing samples : {len(X_test)}")
 
+
+# ============================================================
+# UPDATE EXISTING TRAINING CSV
+# ============================================================
+
+training_data = X_train.copy()
+
+training_data[TARGET_COLUMN] = (
+    label_encoder.inverse_transform(y_train)
+)
+
+training_data.to_csv(
+    TRAIN_DATA_FILE,
+    index=False
+)
+
+print(
+    f"Training CSV updated: {TRAIN_DATA_FILE}"
+)
+
+print(
+    f"Training records: {TRAINING_RECORDS:,}"
+)
+
+
+# ============================================================
+# UPDATE EXISTING TEST CSV
+# ============================================================
+
+test_data = X_test.copy()
+
+test_data[TARGET_COLUMN] = (
+    label_encoder.inverse_transform(y_test)
+)
+
+test_data.to_csv(
+    TEST_DATA_FILE,
+    index=False
+)
+
+print(
+    f"Test CSV updated: {TEST_DATA_FILE}"
+)
+
+print(
+    f"Test records: {TEST_RECORDS:,}"
+)
+
+
+# ============================================================
+# VALIDATE SPLIT
+# ============================================================
+
+assert (
+    TRAINING_RECORDS + TEST_RECORDS
+    == len(df)
+), (
+    "Training + Test record counts do not match "
+    "the processed dataset count."
+)
+
+print(
+    f"Total records split: "
+    f"{TRAINING_RECORDS + TEST_RECORDS:,}"
+)
 
 # ============================================================
 # 10. DEFINE FIVE CLASSIFICATION MODELS
@@ -466,8 +549,20 @@ metadata = {
         ORIGINAL_NUMBER_OF_INSTANCES
     ),
 
+    "duplicate_records_detected": int(
+    duplicate_count
+    ),
+
     "number_of_instances": int(
-        PROCESSED_NUMBER_OF_INSTANCES
+    PROCESSED_NUMBER_OF_INSTANCES
+   ),
+
+    "training_records": int(
+        TRAINING_RECORDS
+    ),
+
+    "test_records": int(
+        TEST_RECORDS
     ),
 
     "number_of_features": int(
