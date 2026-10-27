@@ -23,9 +23,8 @@ The data consists of shape measurements extracted from high-resolution images of
 
 ## c. GitHub repository link
 
-**Repository URL:** `https://github.com/<your-github-username>/uci-dry-bean-streamlit-classification`
+**Repository URL:** `https://github.com/99701a0554/uci-dry-bean-streamlit-classification`
 
-Replace `<your-github-username>` after uploading this folder to your GitHub account.
 
 ## d. Models used and evaluation metrics
 
