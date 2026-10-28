@@ -1572,14 +1572,16 @@ if upload is not None:
             variety_rows
         ]
 
-
+        variety_table_height = (
+            35 * (len(variety_report) + 1)
+        )
         st.dataframe(
             style_report_table(
                 variety_report,
                 "Bean Variety",
             ),
             use_container_width=True,
-            height=330,
+            height=variety_table_height,
         )
 
 
@@ -1639,14 +1641,16 @@ if upload is not None:
             average_rows
         ]
 
-
+        average_table_height = (
+            35 * (len(average_report) + 1)
+        )
         st.dataframe(
             style_report_table(
                 average_report,
                 "Average Type",
             ),
             use_container_width=True,
-            height=190,
+            height=average_table_height,
         )
 
 
@@ -1720,10 +1724,12 @@ if upload is not None:
 
 
         st.download_button(
-            label="Download Prediction Results",
+            label="⬇️ Download Prediction Results",
             data=csv_output,
             file_name="dry_bean_predictions.csv",
             mime="text/csv",
+            key="download_evaluated_predictions",
+            on_click="ignore",
         )
 
 
@@ -1825,10 +1831,12 @@ if upload is not None:
 
 
         st.download_button(
-            label="Download Predictions",
+            label="⬇️ Download Predictions",
             data=csv_output,
             file_name="dry_bean_predictions.csv",
             mime="text/csv",
+            key="download_prediction_only_results",
+            on_click="ignore",
         )
 
 
