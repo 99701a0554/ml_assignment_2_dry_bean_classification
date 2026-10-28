@@ -969,11 +969,67 @@ model_observation_df = pd.DataFrame(
 # Display assignment-required table
 # ------------------------------------------------------------
 
-st.dataframe(
-    model_observation_df,
-    use_container_width=True,
-    hide_index=True,
-    height=500,
+# ------------------------------------------------------------
+# Display model-wise observations with word wrapping
+# ------------------------------------------------------------
+
+st.markdown(
+    """
+    <style>
+    .model-observation-table {
+        width: 100%;
+        border-collapse: collapse;
+        table-layout: fixed;
+        margin-top: 10px;
+        margin-bottom: 20px;
+    }
+
+    .model-observation-table th {
+        background-color: #f0f2f6;
+        color: #31333f;
+        font-weight: 600;
+        text-align: left;
+        padding: 12px;
+        border: 1px solid #d9d9d9;
+    }
+
+    .model-observation-table td {
+        padding: 12px;
+        border: 1px solid #d9d9d9;
+        vertical-align: top;
+        text-align: left;
+        white-space: normal;
+        word-wrap: break-word;
+        overflow-wrap: break-word;
+        line-height: 1.5;
+    }
+
+    .model-observation-table th:first-child,
+    .model-observation-table td:first-child {
+        width: 22%;
+        font-weight: 600;
+    }
+
+    .model-observation-table th:nth-child(2),
+    .model-observation-table td:nth-child(2) {
+        width: 78%;
+    }
+    </style>
+    """,
+    unsafe_allow_html=True,
+)
+
+
+# Convert the DataFrame to HTML
+observation_html = model_observation_df.to_html(
+    index=False,
+    escape=True,
+    classes="model-observation-table"
+)
+
+st.markdown(
+    observation_html,
+    unsafe_allow_html=True
 )
 
 # ============================================================
