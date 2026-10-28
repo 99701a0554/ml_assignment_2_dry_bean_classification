@@ -42,7 +42,7 @@ Dataset counts, preprocessing details, train/test record counts and model result
 
 ## c. GitHub Repository Link
 
-**Repository URL:** Add the final GitHub repository link here after publishing the project.
+**Repository URL:** [Add the final GitHub repository link here after publishing the project.](https://github.com/99701a0554/uci-dry-bean-streamlit-classification)
 
 ---
 
