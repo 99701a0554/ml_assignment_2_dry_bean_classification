@@ -530,7 +530,270 @@ def update_readme_results(
     observations_text = "\n".join(
         observations
     )
+    # --------------------------------------------------------
+    # DYNAMIC MODEL-WISE PERFORMANCE OBSERVATIONS
+    # Assignment requirement - 3 marks
+    # --------------------------------------------------------
 
+    def build_model_observation(
+        model_name,
+        row,
+        results_df,
+        overall_winner
+    ):
+        """
+        Build model-specific observations entirely from
+        the current training/evaluation results.
+
+        No metric values, rankings or winner names
+        are hard-coded.
+        """
+
+        # ----------------------------------------------------
+        # Rank models dynamically by weighted F1
+        # ----------------------------------------------------
+
+        f1_ranking = (
+            results_df["F1"]
+            .rank(
+                ascending=False,
+                method="min"
+            )
+        )
+
+        model_rank = int(
+            f1_ranking.loc[model_name]
+        )
+
+        total_models = len(
+            results_df
+        )
+
+        # ----------------------------------------------------
+        # Find which metrics this model leads
+        # ----------------------------------------------------
+
+        metrics_won = []
+
+        for metric in metric_names:
+
+            valid_scores = (
+                results_df[metric]
+                .dropna()
+            )
+
+            if valid_scores.empty:
+                continue
+
+            if (
+                row[metric]
+                == valid_scores.max()
+            ):
+
+                metric_label = (
+                    "Weighted F1"
+                    if metric == "F1"
+                    else metric
+                )
+
+                metrics_won.append(
+                    metric_label
+                )
+
+        # ----------------------------------------------------
+        # Difference from winning F1
+        # ----------------------------------------------------
+
+        winning_f1 = float(
+            results_df.loc[
+                overall_winner,
+                "F1"
+            ]
+        )
+
+        model_f1 = float(
+            row["F1"]
+        )
+
+        f1_difference = (
+            winning_f1
+            - model_f1
+        )
+
+        # ----------------------------------------------------
+        # Dynamic ranking observation
+        # ----------------------------------------------------
+
+        if model_name == overall_winner:
+
+            rank_observation = (
+                "This model ranked first by weighted F1 "
+                "and is selected as the overall winner."
+            )
+
+        elif model_rank == 2:
+
+            rank_observation = (
+                "This model ranked second by weighted F1. "
+                f"Its F1 score was {f1_difference:.4f} "
+                "below the winning model."
+            )
+
+        elif model_rank == 3:
+
+            rank_observation = (
+                "This model ranked third by weighted F1. "
+                f"Its F1 score was {f1_difference:.4f} "
+                "below the winning model."
+            )
+
+        else:
+
+            rank_observation = (
+                f"This model ranked {model_rank} out of "
+                f"{total_models} models by weighted F1. "
+                f"Its F1 score was {f1_difference:.4f} "
+                "below the winning model."
+            )
+
+        # ----------------------------------------------------
+        # Dynamic metric-leadership observation
+        # ----------------------------------------------------
+
+        if metrics_won:
+
+            metric_observation = (
+                " It achieved the highest score for "
+                + ", ".join(metrics_won)
+                + "."
+            )
+
+        else:
+
+            metric_observation = (
+                " It did not achieve the highest score "
+                "for any of the evaluated metrics."
+            )
+
+        # ----------------------------------------------------
+        # Final model observation
+        # ----------------------------------------------------
+
+        return (
+            f"Accuracy **{row['Accuracy']:.4f}**, "
+            f"AUC **{row['AUC']:.4f}**, "
+            f"Precision **{row['Precision']:.4f}**, "
+            f"Recall **{row['Recall']:.4f}**, "
+            f"Weighted F1 **{row['F1']:.4f}**, "
+            f"and MCC **{row['MCC']:.4f}**. "
+            f"{rank_observation}"
+            f"{metric_observation}"
+        )
+
+
+    # --------------------------------------------------------
+    # Build assignment observation table dynamically
+    # --------------------------------------------------------
+
+    model_observation_lines = [
+        (
+            "| ML Model Name | "
+            "Observation about Model Performance |"
+        ),
+        "|---|---|",
+    ]
+
+
+    for model_name, row in results_df.iterrows():
+
+        display_name = (
+            "Support Vector Machine"
+            if model_name == "SVM"
+            else model_name
+        )
+
+        observation = build_model_observation(
+            model_name=model_name,
+            row=row,
+            results_df=results_df,
+            overall_winner=overall_winner
+        )
+
+        model_observation_lines.append(
+            f"| **{display_name}** "
+            f"| {observation} |"
+        )
+
+
+    # --------------------------------------------------------
+    # Overall-winner information entirely from results
+    # --------------------------------------------------------
+
+    winner_display_name = (
+        "Support Vector Machine"
+        if overall_winner == "SVM"
+        else overall_winner
+    )
+
+    winner_metric_names = []
+
+
+    for metric in metric_names:
+
+        valid_scores = (
+            results_df[metric]
+            .dropna()
+        )
+
+        if valid_scores.empty:
+            continue
+
+        if (
+            winner_metrics[metric]
+            == valid_scores.max()
+        ):
+
+            metric_label = (
+                "Weighted F1"
+                if metric == "F1"
+                else metric
+            )
+
+            winner_metric_names.append(
+                metric_label
+            )
+
+
+    if winner_metric_names:
+
+        winner_metric_text = (
+            "The model also achieved the highest score "
+            "for "
+            + ", ".join(winner_metric_names)
+            + "."
+        )
+
+    else:
+
+        winner_metric_text = (
+            "The winner was selected using the "
+            "weighted F1 criterion."
+        )
+
+
+    model_observation_lines.append(
+        "| **Overall Winner for the Dataset** | "
+        f"**{winner_display_name}** is selected as the "
+        f"overall winner because it achieved the highest "
+        f"weighted F1 score of "
+        f"**{winner_metrics['F1']:.4f}**. "
+        f"{winner_metric_text} |"
+    )
+
+
+    model_observation_table = "\n".join(
+        model_observation_lines
+    )
 
     # --------------------------------------------------------
     # BUILD GENERATED README SECTION
@@ -583,9 +846,16 @@ multiclass evaluation.
 
 {observations_text}
 
+### Model-wise Performance Observations
+
+The following observations are calculated dynamically from
+the latest held-out test-set evaluation.
+
+{model_observation_table}
+
 ### Overall Winner
 
-**{overall_winner}** is selected as the overall
+**{winner_display_name}** is selected as the overall
 winning model based on the highest weighted F1
 score of **{winner_metrics['F1']:.4f}**.
 

@@ -1,50 +1,46 @@
-# UCI Dry Bean Classification - Streamlit Application
+# Machine Learning Assignment: UCI Dry Bean Classification Using Five ML Models
 
 ## a. Problem Statement
 
-The objective of this project is to develop and compare five machine-learning classifiers that identify a dry-bean variety from its measured geometric properties.
+The objective of this project is to develop, evaluate and compare five machine-learning classifiers for identifying dry-bean varieties from their measured geometric properties.
 
-This is a seven-class classification problem. The Streamlit application supports:
+This is a seven-class multiclass classification problem.
+
+The project evaluates the following five machine-learning models:
+
+1. Logistic Regression
+2. Decision Tree
+3. K-Nearest Neighbours
+4. Gaussian Naive Bayes
+5. Support Vector Machine
+
+The Streamlit application supports:
 
 - Selection of any one of the five trained classification models
+- Display of held-out test-set evaluation metrics
+- Comparison of all five machine-learning models
+- Best-performing model identification for each evaluation metric
+- Model-wise performance observations for all five classifiers
+- Dynamic identification of the overall winning model
 - Uploading test data in CSV format
-- Displaying held-out test-set evaluation metrics
-- Comparing the performance of all five models
-- Identifying the best model for each evaluation metric
-- Selecting an overall winning model
-- Generating predictions for new data
-- Displaying a confusion matrix
-- Displaying a detailed classification report
+- Prediction of dry-bean varieties
+- Confusion-matrix visualisation
+- Detailed classification reports
+- Micro, macro and weighted performance summaries
+- Prediction-confidence display
 - Downloading prediction results
-
----
 
 ## b. Dataset Description
 
-**Dataset:** [UCI Dry Bean Dataset](https://archive.ics.uci.edu/dataset/602/dry+bean+dataset)
+**Dataset:** UCI Dry Bean Dataset
 
-The dataset contains geometric measurements extracted from images of dry-bean grains. The original Excel dataset is stored under the `data/` directory so that model training can be reproduced.
+The dataset contains geometric measurements extracted from images of dry-bean grains. The original Excel dataset is stored in the `data/` directory so that model training can be reproduced.
 
-| Item | Description |
-|---|---|
-| Classification type | Multiclass classification |
-| Input features | 16 numerical features |
-| Target column | `Class` |
-| Number of classes | 7 bean varieties |
-| Classes | BARBUNYA, BOMBAY, CALI, DERMASON, HOROZ, SEKER and SIRA |
-| Feature examples | Area, Perimeter, MajorAxisLength, MinorAxisLength, AspectRation, Eccentricity, Solidity and ShapeFactor1-4 |
-| Train/test method | Stratified train/test split |
-| Random state | 42 |
-
-Dataset counts, preprocessing details, train/test record counts and model results are updated automatically in the generated-results section below.
-
----
+The exact dataset counts, preprocessing results, train/test split statistics and model evaluation results are generated dynamically by `train_models.py` and written to the protected results section below.
 
 ## c. GitHub Repository Link
 
 **Repository URL:** `https://github.com/99701a0554/uci-dry-bean-streamlit-classification`
-
----
 
 <!-- AUTO-GENERATED-RESULTS:START -->
 
@@ -126,9 +122,23 @@ multiclass evaluation.
 - **Weighted F1 Score:** SVM achieved the highest score of **0.9211**.
 - **Matthews Correlation Coefficient (MCC):** SVM achieved the highest score of **0.9045**.
 
+### Model-wise Performance Observations
+
+The following observations are calculated dynamically from
+the latest held-out test-set evaluation.
+
+| ML Model Name | Observation about Model Performance |
+|---|---|
+| **Logistic Regression** | Accuracy **0.9192**, AUC **0.9934**, Precision **0.9197**, Recall **0.9192**, Weighted F1 **0.9193**, and MCC **0.9023**. This model ranked second by weighted F1. Its F1 score was 0.0018 below the winning model. It achieved the highest score for AUC. |
+| **Decision Tree** | Accuracy **0.8966**, AUC **0.9363**, Precision **0.8965**, Recall **0.8966**, Weighted F1 **0.8964**, and MCC **0.8750**. This model ranked 4 out of 5 models by weighted F1. Its F1 score was 0.0247 below the winning model. It did not achieve the highest score for any of the evaluated metrics. |
+| **KNN** | Accuracy **0.9155**, AUC **0.9811**, Precision **0.9163**, Recall **0.9155**, Weighted F1 **0.9157**, and MCC **0.8978**. This model ranked third by weighted F1. Its F1 score was 0.0054 below the winning model. It did not achieve the highest score for any of the evaluated metrics. |
+| **Naive Bayes** | Accuracy **0.7630**, AUC **0.9644**, Precision **0.7647**, Recall **0.7630**, Weighted F1 **0.7607**, and MCC **0.7143**. This model ranked 5 out of 5 models by weighted F1. Its F1 score was 0.1604 below the winning model. It did not achieve the highest score for any of the evaluated metrics. |
+| **Support Vector Machine** | Accuracy **0.9210**, AUC **0.9884**, Precision **0.9214**, Recall **0.9210**, Weighted F1 **0.9211**, and MCC **0.9045**. This model ranked first by weighted F1 and is selected as the overall winner. It achieved the highest score for Accuracy, Precision, Recall, Weighted F1, MCC. |
+| **Overall Winner for the Dataset** | **Support Vector Machine** is selected as the overall winner because it achieved the highest weighted F1 score of **0.9211**. The model also achieved the highest score for Accuracy, Precision, Recall, Weighted F1, MCC. |
+
 ### Overall Winner
 
-**SVM** is selected as the overall
+**Support Vector Machine** is selected as the overall
 winning model based on the highest weighted F1
 score of **0.9211**.
 
@@ -147,31 +157,27 @@ while accounting for class support.
 
 <!-- AUTO-GENERATED-RESULTS:END -->
 
----
-
 ## d. Models Used
 
-The project trains and evaluates the following five machine-learning classification models:
+The project trains and evaluates five classification algorithms:
 
-1. Logistic Regression
-2. Decision Tree
-3. K-Nearest Neighbours
-4. Gaussian Naive Bayes
-5. Support Vector Machine
+1. **Logistic Regression**
+2. **Decision Tree**
+3. **K-Nearest Neighbours (KNN)**
+4. **Gaussian Naive Bayes**
+5. **Support Vector Machine (SVM)**
 
-The same training and held-out testing partitions are used for all five models to ensure a consistent comparison.
+All five classifiers are evaluated using the same held-out test partition to provide a consistent model comparison.
 
-Standardisation is included in the pipelines for models that are sensitive to feature scale.
-
----
+Feature scaling is included in the pipelines for algorithms that are sensitive to differences in feature magnitude.
 
 ## e. Evaluation Metrics
 
-The following metrics are used to evaluate the classification models:
+The following evaluation metrics are used to compare the five classification models.
 
 ### Accuracy
 
-Accuracy measures the proportion of test records that are classified correctly.
+Accuracy measures the proportion of test observations classified correctly.
 
 ```text
 Accuracy = Correct Predictions / Total Predictions
@@ -179,11 +185,13 @@ Accuracy = Correct Predictions / Total Predictions
 
 ### AUC
 
-Multiclass AUC measures the model's ability to distinguish between the seven bean classes. The application uses a one-vs-rest multiclass calculation.
+Area Under the ROC Curve (AUC) measures a model's ability to distinguish between classes.
+
+For this multiclass classification problem, AUC is calculated using a one-vs-rest approach.
 
 ### Precision
 
-Precision measures how many records predicted as a particular class actually belong to that class.
+Precision measures the proportion of observations predicted as a class that actually belong to that class.
 
 ```text
 Precision = True Positives / (True Positives + False Positives)
@@ -191,7 +199,7 @@ Precision = True Positives / (True Positives + False Positives)
 
 ### Recall
 
-Recall measures how many records belonging to a particular class are identified correctly.
+Recall measures the proportion of observations belonging to a class that are correctly identified.
 
 ```text
 Recall = True Positives / (True Positives + False Negatives)
@@ -199,74 +207,85 @@ Recall = True Positives / (True Positives + False Negatives)
 
 ### F1 Score
 
-F1 is the harmonic mean of Precision and Recall.
+The F1 score is the harmonic mean of Precision and Recall.
 
 ```text
 F1 = 2 x (Precision x Recall) / (Precision + Recall)
 ```
 
-### Matthews Correlation Coefficient
+### Matthews Correlation Coefficient (MCC)
 
-MCC measures the correlation between actual and predicted classes. It provides an additional balanced assessment of classification quality.
+MCC measures the correlation between actual and predicted classifications and provides an additional balanced measure of classification quality.
 
-### Overall Winner Selection
+### Weighted Multiclass Metrics
 
-The overall winner is selected dynamically using the highest weighted F1 score.
+Weighted Precision, Recall and F1 are used for the primary multiclass model comparison.
 
-Weighted F1 is used as the primary model-selection measure because it combines Precision and Recall while considering the number of observations belonging to each class.
+The weighting considers the support, or number of observations, belonging to each class.
 
-Accuracy, AUC and MCC are retained as supporting measures for the final comparison.
+### Overall Model Selection
 
----
+The overall winning model is selected dynamically from the latest model-evaluation results using weighted F1 as the primary selection criterion.
+
+Accuracy, AUC, Precision, Recall and MCC are retained as supporting measures.
+
+All calculated metric values, rankings and winner information are generated by `train_models.py`.
 
 ## f. Data Preparation and Train/Test Split
 
-The model-training process follows these stages:
+The model-training pipeline performs the following stages:
 
 ```text
-Original Dry Bean Dataset
-          |
-          v
-Column-name standardisation
-          |
-          v
-Duplicate-record detection and removal
-          |
-          v
-Missing-value validation and removal
-          |
-          v
-Model-ready dataset
-          |
-          v
+Original UCI Dry Bean Dataset
+            |
+            v
+      Load source data
+            |
+            v
+Standardise column names
+            |
+            v
+ Detect duplicate records
+            |
+            v
+    Remove duplicates
+            |
+            v
+Validate missing values
+            |
+            v
+Remove incomplete records
+      when applicable
+            |
+            v
+   Model-ready dataset
+            |
+            v
+Separate Features (X)
+and Target Class (y)
+            |
+            v
+   Encode class labels
+            |
+            v
 Stratified train/test split
-        /   \
-       /     \
-      v       v
-Training     Testing
-Dataset      Dataset
+          /   \
+         /     \
+        v       v
+   Training    Testing
+    Dataset    Dataset
 ```
 
-The training and testing datasets are written to:
+The generated training and testing datasets are stored as:
 
 ```text
 data/training_data.csv
 test_data.csv
 ```
 
-When `train_models.py` is executed again, the existing CSV contents are overwritten with the newly generated split.
+When the training program is executed again, the existing CSV files are overwritten using the latest processed dataset and train/test split.
 
-The split uses:
-
-```python
-test_size=0.20
-random_state=42
-stratify=y
-```
-
-Using a fixed random state makes the split reproducible when the same source file and preprocessing logic are used.
-
----
+The exact original dataset count, duplicate count, model-ready record count, training/test counts and split percentages are generated dynamically by `train_models.py` and displayed in the automatically generated results section.
 
 ## g. Project Structure
 
@@ -294,48 +313,49 @@ dry_bean_streamlit_project/
     `-- metadata.json
 ```
 
-### Main Files
+### Main Project Files
 
-- `app.py`: Streamlit application
-- `train_models.py`: Data preparation, model training, evaluation and artefact generation
-- `README.md`: Project documentation with a protected automatic-results section
-- `requirements.txt`: Python package dependencies
-- `test_data.csv`: Held-out testing dataset
-- `data/training_data.csv`: Training dataset
-- `model/metrics.json`: Evaluation results for all five models
-- `model/metadata.json`: Dataset, split, class and model-file metadata
-- `model/label_encoder.joblib`: Encoder used to convert between class names and numerical model labels
-- `model/*.joblib`: Trained model pipelines
-
----
+- `app.py` - Streamlit machine-learning application
+- `train_models.py` - Data preprocessing, model training, evaluation and artefact generation
+- `README.md` - Project documentation
+- `requirements.txt` - Python package dependencies
+- `data/Dry_Bean_Dataset.xlsx` - Source dataset
+- `data/training_data.csv` - Generated training partition
+- `test_data.csv` - Generated held-out test partition
+- `model/metrics.json` - Latest evaluation results
+- `model/metadata.json` - Dataset, split, model and class metadata
+- `model/label_encoder.joblib` - Class-label encoder
+- `model/*.joblib` - Saved trained model pipelines
 
 ## h. Generated Files
 
-Running `train_models.py` regenerates or updates:
+Running `train_models.py` regenerates or updates the machine-learning artefacts required by the project.
 
-- `data/training_data.csv`
-- `test_data.csv`
-- Five trained model files
-- `model/label_encoder.joblib`
-- `model/metrics.json`
-- `model/metadata.json`
+The generated outputs include:
+
+- `data/training_data.csv` - Training partition generated from the processed dataset
+- `test_data.csv` - Held-out testing partition
+- Five trained model files in the `model/` directory
+- `model/label_encoder.joblib` - Encoded mapping between bean class names and numerical labels
+- `model/metrics.json` - Latest held-out test-set evaluation results
+- `model/metadata.json` - Dataset, preprocessing, train/test split, feature, class and model-file metadata
 - The protected automatic-results section in `README.md`
 
-Existing training and testing CSV contents are replaced rather than appended.
+Existing training and testing CSV files are overwritten when model training is executed again rather than appended.
 
-Manual content outside the automatically generated README markers is preserved.
+Calculated dataset counts, split percentages, evaluation metrics, model rankings, model-wise observations and the overall winner are generated from the current execution of `train_models.py` and are not manually maintained in this README.
 
----
+Manual README content outside the automatic results markers is preserved.
 
 ## i. Installation
 
-Create or activate the required Python environment and install the dependencies:
+Install the required Python dependencies:
 
 ```bash
 python -m pip install -r requirements.txt
 ```
 
-The project requires packages such as:
+The project uses packages including:
 
 - Streamlit
 - pandas
@@ -346,160 +366,123 @@ The project requires packages such as:
 - seaborn
 - openpyxl
 
-The installable package name is `scikit-learn`, not `sklearn`.
-
----
-
 ## j. Model Training
 
-Execute:
+Run:
 
 ```bash
 python train_models.py
 ```
 
-The training script will:
+The training program performs the complete machine-learning workflow:
 
-1. Load the source Excel dataset
-2. Validate and clean the data
-3. Detect and remove duplicate records
-4. Separate the input features and target
-5. Encode the class labels
-6. Create the stratified training and testing partitions
-7. Overwrite the existing training and test CSV files
-8. Train the five classification models
-9. Evaluate each model on the held-out test set
-10. Save the trained models
-11. Save the label encoder
-12. Update `metrics.json`
-13. Update `metadata.json`
-14. Update the protected results section in this README
+1. Loads the source Dry Bean dataset
+2. Validates and preprocesses the data
+3. Detects and removes duplicate records
+4. Validates missing data
+5. Separates the input features and target
+6. Encodes the target classes
+7. Creates the stratified training and testing partitions
+8. Updates the training and test CSV files
+9. Trains all five classification models
+10. Evaluates all models on the held-out test dataset
+11. Saves the trained model pipelines
+12. Saves the label encoder
+13. Updates `metrics.json`
+14. Updates `metadata.json`
+15. Calculates the best model for each metric
+16. Calculates model-wise performance observations
+17. Selects the overall winner
+18. Updates the protected results section in this README
 
----
+All calculated dataset counts, performance statistics, rankings and winner information are generated from the current training execution.
 
 ## k. Running the Streamlit Application
 
-Execute:
+Run:
 
 ```bash
 python -m streamlit run app.py
 ```
 
-The application loads the trained models and supporting artefacts from the `model/` directory.
+The application loads the trained model artefacts and supporting metadata from the `model/` directory.
 
-The application requires these generated files:
-
-```text
-model/
-|-- logistic_regression.joblib
-|-- decision_tree.joblib
-|-- knn.joblib
-|-- naive_bayes.joblib
-|-- svm.joblib
-|-- label_encoder.joblib
-|-- metrics.json
-`-- metadata.json
-```
-
-Run `train_models.py` before starting Streamlit if these files have not yet been generated.
-
----
+If the model artefacts have not been created or are outdated, run `train_models.py` before launching the Streamlit application.
 
 ## l. Streamlit Application Features
 
-The application provides:
+The Streamlit application provides:
 
 - Dataset preparation summary
-- Original, duplicate and model-ready record counts
+- Original dataset record count
+- Duplicate-record count
+- Model-ready record count
 - Training and testing record counts
 - Training and testing percentages
 - Model-selection dropdown
-- Held-out test-set performance metrics
-- Five-model comparison table
-- Best-performing model for every metric
-- Dynamically selected overall winner
+- Held-out test-set evaluation
+- Comparison of all five classifiers
+- Best model by evaluation metric
+- Model-wise performance observations for all five classifiers
+- Dynamic overall-winner selection
 - CSV test-data upload
 - Uploaded-data evaluation
-- Seven-class confusion matrix
-- Class-level classification report
-- Micro, macro and weighted average scores
+- Confusion matrix
+- Per-class classification report
+- Micro, macro and weighted average performance
 - Prediction confidence
 - Downloadable prediction results
 
-Use `test_data.csv` as the upload template. The file contains the required feature columns and the `Class` target column.
-
-If an uploaded CSV does not contain the `Class` column, the application generates predictions but does not calculate evaluation metrics.
-
----
+Calculated results displayed by the application are obtained from the model-training artefacts rather than being manually entered.
 
 ## m. Deploying to Streamlit Community Cloud
 
-1. Create a GitHub repository.
-2. Upload the project files and generated model artefacts.
-3. Open [Streamlit Community Cloud](https://share.streamlit.io/).
-4. Select **New app**.
-5. Select the repository and branch.
-6. Set the main application file to:
+1. Push the project files and generated model artefacts to GitHub.
+2. Open Streamlit Community Cloud.
+3. Create a new application from the GitHub repository.
+4. Select the appropriate repository and branch.
+5. Set the main application file to `app.py`.
+6. Deploy the application.
 
-```text
-app.py
-```
-
-7. Deploy the application.
-
-Before deployment, confirm that GitHub contains:
+Before deployment, verify that the repository contains the latest:
 
 - `app.py`
 - `requirements.txt`
+- `README.md`
 - `model/metadata.json`
 - `model/metrics.json`
 - `model/label_encoder.joblib`
-- All five saved models
-
----
+- All five saved model files
 
 ## n. Updating Model Results
 
-After changing the dataset, preprocessing logic or model configuration, execute:
+Whenever the dataset, preprocessing logic, train/test configuration or model configuration changes, execute:
 
 ```bash
 python train_models.py
 ```
 
-The latest dataset statistics and model results will be inserted between:
+The training program automatically recalculates and updates:
 
-```text
-AUTO-GENERATED-RESULTS:START
-```
+- Dataset statistics
+- Data-cleaning statistics
+- Training and testing counts
+- Training and testing percentages
+- Model-evaluation metrics
+- Best model by metric
+- Model rankings
+- Model-wise performance observations
+- Overall winner
+- The protected results section of `README.md`
 
-and:
+Manual README content outside the automatic markers is preserved.
 
-```text
-AUTO-GENERATED-RESULTS:END
-```
-
-Manual sections outside these markers remain unchanged.
-
-After retraining, commit the updated artefacts:
-
-```bash
-git add README.md
-git add data/training_data.csv
-git add test_data.csv
-git add model/metrics.json
-git add model/metadata.json
-git add model/*.joblib
-git commit -m "Update trained models and evaluation results"
-git push
-```
-
----
+After successful training, commit the refreshed artefacts to the Git repository.
 
 ## o. Notes
 
-- Do not manually edit the generated-results section.
-- Do not remove either automatic-results marker.
-- Keep both markers in the correct order.
-- Maintain assignment explanations outside the generated section.
-- Retrain models before publishing new evaluation results.
-- Ensure `metadata.json`, `metrics.json` and the saved models originate from the same training execution.
+- Do not manually edit calculated results in the protected README section.
+- Do not remove the automatic-results START or END markers.
+- Keep assignment explanations outside the generated-results section.
+- Run `train_models.py` whenever the dataset or model configuration changes.
+- Ensure `metadata.json`, `metrics.json`, saved model files, generated CSV files and README results originate from the same training execution.

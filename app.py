@@ -24,7 +24,7 @@ from sklearn.metrics import (
 # ============================================================
 
 st.set_page_config(
-    page_title="Dry Bean Classifier",
+    page_title="ML Assignment - UCI Dry Bean Classification",
     page_icon="🌱",
     layout="wide",
 )
@@ -356,7 +356,7 @@ NUMBER_OF_CLASSES = get_metadata_int(
 # ============================================================
 
 st.title(
-    "🌱 UCI Dry Bean Classification - Five ML Models"
+    "🌱 Machine Learning Assignment: UCI Dry Bean Classification Using Five ML Models"
 )
 
 
@@ -770,6 +770,211 @@ st.dataframe(
     hide_index=True,
 )
 
+# ============================================================
+# MODEL-WISE PERFORMANCE OBSERVATIONS
+# Assignment requirement - 3 marks
+# ============================================================
+
+st.markdown(
+    "#### Model-wise Performance Observations"
+)
+
+st.write(
+    "The following observations summarise the performance "
+    "of each machine-learning model on the selected "
+    "Dry Bean dataset."
+)
+
+
+# ------------------------------------------------------------
+# Determine winner using weighted F1
+# ------------------------------------------------------------
+
+valid_f1_for_observations = (
+    performance_df["F1"]
+    .dropna()
+)
+
+overall_winner_for_observations = (
+    valid_f1_for_observations.idxmax()
+)
+
+
+# ------------------------------------------------------------
+# Function to create observation for each model
+# ------------------------------------------------------------
+
+def create_model_observation(
+    current_model,
+    row,
+    overall_winner
+):
+
+    accuracy = row["Accuracy"]
+    auc = row["AUC"]
+    precision = row["Precision"]
+    recall = row["Recall"]
+    f1 = row["F1"]
+    mcc = row["MCC"]
+
+    if current_model == "Logistic Regression":
+
+        explanation = (
+            "The model achieved strong and balanced multiclass "
+            "performance. The high AUC indicates effective "
+            "separation among the bean classes using the "
+            "linear classification approach."
+        )
+
+    elif current_model == "Decision Tree":
+
+        explanation = (
+            "The Decision Tree captured non-linear relationships "
+            "in the dataset, although its overall test-set "
+            "performance was below the strongest classifiers."
+        )
+
+    elif current_model == "KNN":
+
+        explanation = (
+            "KNN achieved competitive classification performance "
+            "using neighbouring observations in the scaled "
+            "feature space."
+        )
+
+    elif current_model == "Naive Bayes":
+
+        explanation = (
+            "Naive Bayes provides a probabilistic baseline. "
+            "Its performance indicates that the model was less "
+            "effective on this dataset than the other evaluated "
+            "classifiers."
+        )
+
+    elif current_model in [
+        "SVM",
+        "Support Vector Machine",
+    ]:
+
+        explanation = (
+            "The Support Vector Machine achieved strong and "
+            "balanced multiclass performance using a non-linear "
+            "decision boundary."
+        )
+
+    else:
+
+        explanation = (
+            "The model was evaluated using the same held-out "
+            "test dataset as the other classifiers."
+        )
+
+
+    if current_model == overall_winner:
+
+        explanation += (
+            " This model achieved the highest weighted F1 "
+            "score and is therefore selected as the overall winner."
+        )
+
+
+    return (
+        f"Accuracy = {accuracy:.4f}, "
+        f"AUC = {auc:.4f}, "
+        f"Precision = {precision:.4f}, "
+        f"Recall = {recall:.4f}, "
+        f"F1 = {f1:.4f}, "
+        f"MCC = {mcc:.4f}. "
+        f"{explanation}"
+    )
+
+
+# ------------------------------------------------------------
+# Generate model-wise observations
+# ------------------------------------------------------------
+
+model_observation_rows = []
+
+
+for current_model, current_row in performance_df.iterrows():
+
+    display_model_name = (
+        "Support Vector Machine"
+        if current_model == "SVM"
+        else current_model
+    )
+
+    observation = create_model_observation(
+        current_model,
+        current_row,
+        overall_winner_for_observations,
+    )
+
+    model_observation_rows.append(
+        {
+            "ML Model Name": display_model_name,
+            "Observation about Model Performance":
+                observation,
+        }
+    )
+
+
+# ------------------------------------------------------------
+# Add Overall Winner row
+# ------------------------------------------------------------
+
+winning_row = performance_df.loc[
+    overall_winner_for_observations
+]
+
+winner_display_name = (
+    "Support Vector Machine"
+    if overall_winner_for_observations == "SVM"
+    else overall_winner_for_observations
+)
+
+
+model_observation_rows.append(
+    {
+        "ML Model Name":
+            "Overall Winner for the Dataset",
+
+        "Observation about Model Performance":
+            (
+                f"{winner_display_name} is selected as the "
+                f"overall winner because it achieved the "
+                f"highest weighted F1 score of "
+                f"{winning_row['F1']:.4f}. "
+                f"The winning model achieved Accuracy "
+                f"{winning_row['Accuracy']:.4f}, "
+                f"AUC {winning_row['AUC']:.4f}, "
+                f"Precision {winning_row['Precision']:.4f}, "
+                f"Recall {winning_row['Recall']:.4f}, "
+                f"and MCC {winning_row['MCC']:.4f}."
+            ),
+    }
+)
+
+
+# ------------------------------------------------------------
+# Convert to DataFrame
+# ------------------------------------------------------------
+
+model_observation_df = pd.DataFrame(
+    model_observation_rows
+)
+
+
+# ------------------------------------------------------------
+# Display assignment-required table
+# ------------------------------------------------------------
+
+st.dataframe(
+    model_observation_df,
+    use_container_width=True,
+    hide_index=True,
+    height=500,
+)
 
 # ============================================================
 # 16. OVERALL MODEL WINNER
@@ -1591,7 +1796,7 @@ else:
 st.divider()
 
 st.caption(
-    "UCI Dry Bean Classification Project | "
+    "UCI Dry Bean comparative multiclass classification study using | "
     "Logistic Regression | Decision Tree | "
     "KNN | Naive Bayes | Support Vector Machine"
 )
