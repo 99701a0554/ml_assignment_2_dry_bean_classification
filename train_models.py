@@ -58,6 +58,16 @@ METRICS_FILE = MODEL_DIR / "metrics.json"
 METADATA_FILE = MODEL_DIR / "metadata.json"
 LABEL_ENCODER_FILE = MODEL_DIR / "label_encoder.joblib"
 
+README_FILE = ROOT / "README.md"
+
+README_AUTO_START = (
+    "<!-- AUTO-GENERATED-RESULTS:START -->"
+)
+
+README_AUTO_END = (
+    "<!-- AUTO-GENERATED-RESULTS:END -->"
+)
+
 
 # ============================================================
 # 2. CREATE REQUIRED DIRECTORIES
@@ -136,6 +146,514 @@ def evaluate(model, X, y):
         "MCC": round(float(mcc), 4)
     }
 
+# ============================================================
+# README UPDATE FUNCTION
+# ============================================================
+
+def update_readme_results(
+    readme_file,
+    metadata,
+    results
+):
+    """
+    Update only the protected auto-generated section
+    in README.md.
+
+    Manual README content outside the START and END
+    markers is preserved.
+    """
+
+    # --------------------------------------------------------
+    # Validate README
+    # --------------------------------------------------------
+
+    if not readme_file.exists():
+
+        print(
+            f"\nREADME not found: {readme_file}"
+        )
+
+        print(
+            "README automatic update skipped."
+        )
+
+        return
+
+
+    existing_content = readme_file.read_text(
+        encoding="utf-8"
+    )
+
+
+    # --------------------------------------------------------
+    # Validate protected markers
+    # --------------------------------------------------------
+
+    start_position = existing_content.find(
+        README_AUTO_START
+    )
+
+    end_position = existing_content.find(
+        README_AUTO_END
+    )
+
+
+    if start_position == -1:
+
+        raise ValueError(
+            "README START marker was not found:\n"
+            f"{README_AUTO_START}"
+        )
+
+
+    if end_position == -1:
+
+        raise ValueError(
+            "README END marker was not found:\n"
+            f"{README_AUTO_END}"
+        )
+
+
+    if end_position <= start_position:
+
+        raise ValueError(
+            "README automatic-results markers "
+            "are in the wrong order."
+        )
+
+
+    # --------------------------------------------------------
+    # Extract metadata
+    # --------------------------------------------------------
+
+    original_records = int(
+        metadata.get(
+            "original_number_of_instances",
+            0
+        )
+    )
+
+
+    duplicate_records = int(
+        metadata.get(
+            "duplicate_records_detected",
+            0
+        )
+    )
+
+
+    model_ready_records = int(
+        metadata.get(
+            "number_of_instances",
+            0
+        )
+    )
+
+
+    training_records = int(
+        metadata.get(
+            "training_records",
+            0
+        )
+    )
+
+
+    test_records = int(
+        metadata.get(
+            "test_records",
+            0
+        )
+    )
+
+
+    number_of_features = int(
+        metadata.get(
+            "number_of_features",
+            0
+        )
+    )
+
+
+    number_of_classes = int(
+        metadata.get(
+            "number_of_classes",
+            0
+        )
+    )
+
+
+    class_names = metadata.get(
+        "class_names",
+        []
+    )
+
+
+    # --------------------------------------------------------
+    # Calculate train/test percentages
+    # --------------------------------------------------------
+
+    if model_ready_records > 0:
+
+        training_percentage = (
+            training_records
+            / model_ready_records
+            * 100
+        )
+
+        test_percentage = (
+            test_records
+            / model_ready_records
+            * 100
+        )
+
+    else:
+
+        training_percentage = 0.0
+        test_percentage = 0.0
+
+
+    # --------------------------------------------------------
+    # Prepare results DataFrame
+    # --------------------------------------------------------
+
+    metric_names = [
+        "Accuracy",
+        "AUC",
+        "Precision",
+        "Recall",
+        "F1",
+        "MCC",
+    ]
+
+
+    results_df = pd.DataFrame(
+        results
+    ).T
+
+
+    results_df = results_df.reindex(
+        columns=metric_names
+    )
+
+
+    results_df = results_df.apply(
+        pd.to_numeric,
+        errors="coerce"
+    )
+
+
+    if results_df.empty:
+
+        raise ValueError(
+            "No model results are available "
+            "for README generation."
+        )
+
+
+    # --------------------------------------------------------
+    # Overall winner based on weighted F1
+    # --------------------------------------------------------
+
+    valid_f1 = results_df[
+        "F1"
+    ].dropna()
+
+
+    if valid_f1.empty:
+
+        raise ValueError(
+            "F1 results are unavailable. "
+            "README winner cannot be calculated."
+        )
+
+
+    overall_winner = valid_f1.idxmax()
+
+
+    winner_metrics = results_df.loc[
+        overall_winner
+    ]
+
+
+    # --------------------------------------------------------
+    # Find best model for every metric
+    # --------------------------------------------------------
+
+    best_models = {}
+
+
+    for metric in metric_names:
+
+        valid_scores = results_df[
+            metric
+        ].dropna()
+
+
+        if not valid_scores.empty:
+
+            best_model = valid_scores.idxmax()
+
+            best_models[metric] = {
+                "model": best_model,
+                "score": valid_scores.loc[
+                    best_model
+                ],
+            }
+
+
+    # --------------------------------------------------------
+    # DATASET SUMMARY TABLE
+    # --------------------------------------------------------
+
+    dataset_table = f"""
+| Dataset Measure | Value |
+|---|---:|
+| Original records | {original_records:,} |
+| Duplicate records removed | {duplicate_records:,} |
+| Model-ready records | {model_ready_records:,} |
+| Training records | {training_records:,} ({training_percentage:.1f}%) |
+| Test records | {test_records:,} ({test_percentage:.1f}%) |
+| Numerical features | {number_of_features} |
+| Bean classes | {number_of_classes} |
+"""
+
+
+    # --------------------------------------------------------
+    # MODEL PERFORMANCE TABLE
+    # --------------------------------------------------------
+
+    comparison_lines = [
+        (
+            "| Model | Accuracy | AUC | Precision | "
+            "Recall | F1 | MCC |"
+        ),
+        (
+            "|---|---:|---:|---:|---:|---:|---:|"
+        ),
+    ]
+
+
+    for model_name, row in results_df.iterrows():
+
+        comparison_lines.append(
+            f"| {model_name} "
+            f"| {row['Accuracy']:.4f} "
+            f"| {row['AUC']:.4f} "
+            f"| {row['Precision']:.4f} "
+            f"| {row['Recall']:.4f} "
+            f"| {row['F1']:.4f} "
+            f"| {row['MCC']:.4f} |"
+        )
+
+
+    comparison_table = "\n".join(
+        comparison_lines
+    )
+
+
+    # --------------------------------------------------------
+    # BEST MODEL BY METRIC TABLE
+    # --------------------------------------------------------
+
+    winner_lines = [
+        "| Metric | Best Model | Score |",
+        "|---|---|---:|",
+    ]
+
+
+    for metric in metric_names:
+
+        if metric in best_models:
+
+            winner_lines.append(
+                f"| {metric} "
+                f"| {best_models[metric]['model']} "
+                f"| {best_models[metric]['score']:.4f} |"
+            )
+
+
+    winner_table = "\n".join(
+        winner_lines
+    )
+
+
+    # --------------------------------------------------------
+    # BEAN CLASS LIST
+    # --------------------------------------------------------
+
+    class_list = "\n".join(
+        f"- {class_name}"
+        for class_name in class_names
+    )
+
+
+    # --------------------------------------------------------
+    # PERFORMANCE OBSERVATIONS
+    # --------------------------------------------------------
+
+    observations = []
+
+
+    metric_labels = {
+        "Accuracy": "Accuracy",
+        "AUC": "AUC",
+        "Precision": "Weighted Precision",
+        "Recall": "Weighted Recall",
+        "F1": "Weighted F1 Score",
+        "MCC": (
+            "Matthews Correlation "
+            "Coefficient (MCC)"
+        ),
+    }
+
+
+    for metric in metric_names:
+
+        if metric in best_models:
+
+            model_name = best_models[
+                metric
+            ]["model"]
+
+            score_value = best_models[
+                metric
+            ]["score"]
+
+
+            observations.append(
+                f"- **{metric_labels[metric]}:** "
+                f"{model_name} achieved the highest "
+                f"score of **{score_value:.4f}**."
+            )
+
+
+    observations_text = "\n".join(
+        observations
+    )
+
+
+    # --------------------------------------------------------
+    # BUILD GENERATED README SECTION
+    # --------------------------------------------------------
+
+    generated_content = f"""
+{README_AUTO_START}
+
+## Latest Generated Results
+
+> This section is generated automatically by
+> `train_models.py`. Manual content outside these
+> markers is preserved.
+
+### Dataset Summary
+
+{dataset_table}
+
+The original dataset contained **{original_records:,}**
+records. After preprocessing,
+**{model_ready_records:,}** records were available
+for modelling.
+
+The model-ready dataset was divided into:
+
+- **{training_records:,} training records**
+  ({training_percentage:.1f}%)
+- **{test_records:,} test records**
+  ({test_percentage:.1f}%)
+
+### Bean Classes
+
+{class_list}
+
+### Model Performance Comparison
+
+The models were evaluated on the same held-out
+test dataset.
+
+Weighted Precision, Recall and F1 are used for
+multiclass evaluation.
+
+{comparison_table}
+
+### Best Model by Metric
+
+{winner_table}
+
+### Model Performance Observations
+
+{observations_text}
+
+### Overall Winner
+
+**{overall_winner}** is selected as the overall
+winning model based on the highest weighted F1
+score of **{winner_metrics['F1']:.4f}**.
+
+The overall winner achieved:
+
+- Accuracy: **{winner_metrics['Accuracy']:.4f}**
+- AUC: **{winner_metrics['AUC']:.4f}**
+- Precision: **{winner_metrics['Precision']:.4f}**
+- Recall: **{winner_metrics['Recall']:.4f}**
+- Weighted F1: **{winner_metrics['F1']:.4f}**
+- MCC: **{winner_metrics['MCC']:.4f}**
+
+Weighted F1 is used as the primary selection
+criterion because it combines Precision and Recall
+while accounting for class support.
+
+{README_AUTO_END}
+"""
+
+
+    # --------------------------------------------------------
+    # REPLACE ONLY GENERATED SECTION
+    # --------------------------------------------------------
+
+    end_position = (
+        end_position
+        + len(README_AUTO_END)
+    )
+
+
+    updated_content = (
+        existing_content[
+            :start_position
+        ]
+        + generated_content.strip()
+        + existing_content[
+            end_position:
+        ]
+    )
+
+
+    # --------------------------------------------------------
+    # WRITE UPDATED README
+    # --------------------------------------------------------
+
+    readme_file.write_text(
+        updated_content,
+        encoding="utf-8"
+    )
+
+
+    print(
+        "\nREADME automatic results "
+        "updated successfully."
+    )
+
+    print(
+        f"README file: {readme_file}"
+    )
+
+    print(
+        f"Overall winner: {overall_winner}"
+    )
+
+    print(
+        f"Winning weighted F1: "
+        f"{winner_metrics['F1']:.4f}"
+    )
 
 # ============================================================
 # 4. CHECK DATASET
@@ -565,6 +1083,10 @@ metadata = {
         TEST_RECORDS
     ),
 
+    "test_size": 0.20,
+
+    "random_state": 42,
+
     "number_of_features": int(
         len(FEATURE_NAMES)
     ),
@@ -588,3 +1110,13 @@ with open(
     )
 
 print(f"Metadata saved to: {METADATA_FILE}")
+
+# ============================================================
+# 15. UPDATE README
+# ============================================================
+
+update_readme_results(
+    readme_file=README_FILE,
+    metadata=metadata,
+    results=results
+)
