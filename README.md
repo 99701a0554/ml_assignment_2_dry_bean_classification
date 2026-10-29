@@ -40,7 +40,7 @@ The exact dataset counts, preprocessing results, train/test split statistics and
 
 ## c. GitHub Repository Link
 
-**Repository URL:** `https://github.com/99701a0554/uci-dry-bean-streamlit-classification`
+**Repository URL:** `https://github.com/99701a0554/ml_assignment_2_dry_bean_classification`
 
 <!-- AUTO-GENERATED-RESULTS:START -->
 
@@ -436,6 +436,11 @@ The Streamlit application provides:
 Calculated results displayed by the application are obtained from the model-training artefacts rather than being manually entered.
 
 ## m. Deploying to Streamlit Community Cloud
+
+Live Streamlit Application
+Open the Live UCI Dry Bean Classification Application `https://uci-dry-bean-app-classification-ernopnau2nwqv7yabsspad.streamlit.app/`
+
+The application is deployed using Streamlit Community Cloud and provides the interactive frontend for model comparison, test-data evaluation and prediction.
 
 1. Push the project files and generated model artefacts to GitHub.
 2. Open Streamlit Community Cloud.
