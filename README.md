@@ -437,8 +437,7 @@ Calculated results displayed by the application are obtained from the model-trai
 
 ## m. Deploying to Streamlit Community Cloud
 
-Live Streamlit Application
-Open the Live UCI Dry Bean Classification Application `https://uci-dry-bean-app-classification-ernopnau2nwqv7yabsspad.streamlit.app/`
+**Live Streamlit Application:** `https://ml-assignment-2-dry-bean-classification-eav9awcayr8br3kqr2knjx.streamlit.app/`
 
 The application is deployed using Streamlit Community Cloud and provides the interactive frontend for model comparison, test-data evaluation and prediction.
 
